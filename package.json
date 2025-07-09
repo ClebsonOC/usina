@@ -1,49 +1,15 @@
 {
-  "name": "usina",
+  "name": "usina-servidor",
   "version": "1.0.0",
-  "description": "Uma aplicação de pesagem para usina",
-  "main": "main.js",
+  "description": "Servidor WebSocket para o controle remoto da usina.",
+  "main": "server.js",
   "scripts": {
-    "start": "electron .",
-    "build": "electron-builder",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "keywords": [],
-  "author": "Seu Nome ou Empresa",
+  "author": "",
   "license": "ISC",
   "dependencies": {
-    "pdf-lib": "^1.17.1"
-  },
-  "devDependencies": {
-    "electron": "^31.0.1",
-    "electron-builder": "^24.13.3"
-  },
-  "build": {
-    "appId": "com.suaempresa.usina-pesagem",
-    "productName": "Usina Pesagem",
-    "win": {
-      "target": "nsis",
-      "icon": "icon.png"
-    },
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "main.js",
-      "index.html",
-      "style.css",
-      "script.js",
-      "assets/**/*"
-    ],
-    "extraResources": [
-      {
-        "from": "pdf",
-        "to": "pdf"
-      },
-      {
-        "from": "Obras",
-        "to": "Obras"
-      }
-    ]
+    "ws": "^8.17.1"
   }
 }

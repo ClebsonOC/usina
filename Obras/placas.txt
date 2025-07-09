@@ -1,9 +1,0 @@
-#Formato: PLACA;PESO_INICIAL;PESO_FINAL
-#Adicione ou remova placas conforme necessário.
-#Linhas começando com # são ignoradas.
-LLH-8D43;10080;27620
-LRU-7040;10150;27680
-SRM-3C26;9130;26460
-DTA-9E62;9810;27100
-RJQ-7G17;10110;27460
-LTH-5I04;10350;27990
