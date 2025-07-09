@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Controle de Pesagem</title>
     <style>
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+        }
+
         body { 
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             display: flex; 
@@ -14,24 +20,49 @@
             color: white; 
             margin: 0;
             padding: 20px;
-            -webkit-tap-highlight-color: transparent; /* Remove o brilho ao tocar */
+            -webkit-tap-highlight-color: transparent;
+        }
+        .header {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 15px;
         }
         h1 {
+            margin: 0;
+            font-size: 1.8em;
+        }
+        .status-container {
+            width: 100%;
+            max-width: 400px;
+            background: #34495e;
+            border-radius: 12px;
+            padding: 15px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .desktop-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.1em;
+            font-weight: 500;
             margin-bottom: 10px;
         }
-        .status-bar { 
-            width: 100%; 
-            text-align: center; 
-            padding: 12px; 
-            background: #e74c3c; 
-            margin-bottom: 10px;
-            border-radius: 8px;
-            font-weight: 500;
+        .desktop-status .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #c0392b; /* Vermelho offline */
             transition: background-color 0.5s;
         }
+        .desktop-status.online .indicator {
+            background-color: #2ecc71; /* Verde online */
+            animation: pulse 2s infinite;
+        }
         .weight-status {
-            font-size: 1.2em;
-            margin-bottom: 20px;
+            font-size: 1.3em;
             font-weight: bold;
         }
         .grid { 
@@ -42,69 +73,96 @@
             max-width: 400px; 
         }
         .btn { 
-            padding: 25px; 
-            font-size: 1.5em; 
+            padding: 20px; 
+            font-size: 1.4em; 
             font-weight: bold; 
-            border-radius: 10px; 
+            border-radius: 12px; 
             border: none; 
             cursor: pointer; 
-            background: #3498db; 
             color: white; 
-            transition: transform 0.1s;
+            transition: transform 0.1s, box-shadow 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .btn:active { 
-            transform: scale(0.95); /* Efeito de clique */
-            opacity: 0.8;
+        .btn:disabled {
+            background-color: #7f8c8d !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+            box-shadow: none;
         }
-        #f12-btn { background: #27ae60; grid-column: span 2; }
-        #f8-btn, #f9-btn { background: #e67e22; }
-        #cancel-btn { background: #c0392b; }
+        .btn:active:not(:disabled) { 
+            transform: translateY(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn.f-key { background: #3498db; }
+        .btn.f-key-alt { background: #e67e22; }
+        .btn.f-key-special { background: #8e44ad; }
+        .btn.confirm { background: #27ae60; grid-column: span 2; }
     </style>
 </head>
 <body>
-    <h1>Controle Remoto</h1>
-    <div id="status-bar" class="status-bar">Conectando...</div>
-    <div id="weight-status" class="weight-status">Peso: 0 kg</div>
+    <div class="header">
+        <h1>Controle Remoto</h1>
+    </div>
 
-    <div class="grid">
-        <button id="F1-btn" class="btn">F1</button>
-        <button id="F2-btn" class="btn">F2</button>
-        <button id="F3-btn" class="btn">F3</button>
-        <button id="F4-btn" class="btn">F4</button>
-        <button id="F5-btn" class="btn">F5</button>
-        <button id="F6-btn" class="btn">F6</button>
-        <button id="F8-btn" class="btn">F8</button>
-        <button id="F9-btn" class="btn">F9</button>
-        <button id="F10-btn" class="btn">F10</button>
-        <button id="cancel-btn" class="btn">F8</button> <!-- Botão de Cancelar também usa F8 -->
-        <button id="F12-btn" class="btn">Confirmar (F12)</button>
+    <div class="status-container">
+        <div id="desktop-status" class="desktop-status">
+            <div class="indicator"></div>
+            <span id="desktop-status-text">Desktop Offline</span>
+        </div>
+        <div id="weight-status" class="weight-status">Aguardando...</div>
+    </div>
+
+    <div id="button-grid" class="grid">
+        <button id="F1-btn" class="btn f-key">F1</button>
+        <button id="F2-btn" class="btn f-key">F2</button>
+        <button id="F3-btn" class="btn f-key">F3</button>
+        <button id="F4-btn" class="btn f-key">F4</button>
+        <button id="F5-btn" class="btn f-key">F5</button>
+        <button id="F6-btn" class="btn f-key">F6</button>
+        <button id="F8-btn" class="btn f-key-alt">F8</button>
+        <button id="F9-btn" class="btn f-key-alt">F9</button>
+        <button id="F10-btn" class="btn f-key-special">F10</button>
+        <button id="F8-btn-cancel" class="btn f-key-alt">Cancelar</button> <!-- Também envia F8 -->
+        <button id="F12-btn" class="btn confirm">Confirmar (F12)</button>
     </div>
 
     <script>
-        const WEBSOCKET_URL = 'wss://usina.onrender.com'; // Sua URL real
+        const WEBSOCKET_URL = 'wss://usina.onrender.com';
         let socket;
 
-        const statusBar = document.getElementById('status-bar');
+        const desktopStatusDiv = document.getElementById('desktop-status');
+        const desktopStatusText = document.getElementById('desktop-status-text');
         const weightStatus = document.getElementById('weight-status');
         const buttons = document.querySelectorAll('.btn');
 
+        function setDesktopStatus(isOnline) {
+            if (isOnline) {
+                desktopStatusDiv.classList.add('online');
+                desktopStatusText.textContent = 'Desktop Online';
+                buttons.forEach(btn => btn.disabled = false);
+            } else {
+                desktopStatusDiv.classList.remove('online');
+                desktopStatusText.textContent = 'Desktop Offline';
+                buttons.forEach(btn => btn.disabled = true);
+            }
+        }
+
         function connect() {
             socket = new WebSocket(WEBSOCKET_URL);
+            setDesktopStatus(false); // Começa como offline
 
             socket.onopen = () => {
-                statusBar.textContent = 'Conectado! ✅';
-                statusBar.style.background = '#2ecc71';
+                console.log('Conectado ao servidor.');
                 socket.send(JSON.stringify({ type: 'register_remote' }));
             };
 
             socket.onmessage = (event) => {
                 try {
                     const data = JSON.parse(event.data);
-                    if(data.type === 'status_update') {
-                       statusBar.textContent = `Status: ${data.payload.status}`;
-                       if(data.payload.currentWeight !== undefined){
-                          weightStatus.textContent = `Peso: ${data.payload.currentWeight} kg`;
-                       }
+                    if (data.type === 'desktop_status') {
+                        setDesktopStatus(data.status === 'online');
+                    } else if (data.type === 'status_update') {
+                       weightStatus.textContent = `${data.payload.status}: ${data.payload.currentWeight ?? ''} kg`;
                     }
                 } catch(e) {
                     console.error("Erro ao processar mensagem:", e);
@@ -112,31 +170,30 @@
             };
 
             socket.onclose = () => {
-                statusBar.textContent = 'Desconectado! 🔌';
-                statusBar.style.background = '#c0392b';
+                console.log('Desconectado do servidor.');
+                setDesktopStatus(false);
                 setTimeout(connect, 3000); // Tenta reconectar
             };
 
-            socket.onerror = () => {
-                statusBar.textContent = 'Erro de conexão!';
-                statusBar.style.background = '#e74c3c';
+            socket.onerror = (e) => {
+                console.error('Erro de WebSocket:', e);
+                setDesktopStatus(false);
             };
         }
 
-        buttons.forEach(button => {
-            button.addEventListener('click', () => {
+        document.getElementById('button-grid').addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON' && !event.target.disabled) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
-                    // Extrai a tecla do ID do botão (ex: "F1-btn" -> "F1")
-                    const key = button.id.split('-')[0];
+                    const key = event.target.id.split('-')[0];
                     console.log(`Enviando comando: ${key}`);
                     socket.send(JSON.stringify({ type: 'command', key: key }));
                 } else {
                     alert('Não conectado ao servidor.');
                 }
-            });
+            }
         });
 
-        connect(); // Inicia a conexão
+        connect();
     </script>
 </body>
 </html>

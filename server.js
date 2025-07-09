@@ -3,27 +3,29 @@ const http = require('http');
 const path = require('path');
 const { WebSocketServer } = require('ws');
 
-// A porta será fornecida pelo ambiente do Render, ou 3000 para teste local.
 const PORT = process.env.PORT || 3000;
-
-// Configuração do Servidor Web (Express)
 const app = express();
-// Serve os arquivos estáticos da pasta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Rota principal para servir o remote.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'remote.html'));
 });
 
 const server = http.createServer(app);
-
-// Configuração do Servidor WebSocket (ws)
 const wss = new WebSocketServer({ server });
 
-// Armazenaremos as conexões para saber para quem enviar os comandos.
 let electronClient = null;
 let remoteClients = new Set();
+
+// Função para notificar todos os controles remotos sobre o status do desktop
+function broadcastDesktopStatus(status) {
+    const message = JSON.stringify({ type: 'desktop_status', status: status });
+    remoteClients.forEach(client => {
+        if (client.readyState === ws.OPEN) {
+            client.send(message);
+        }
+    });
+}
 
 // Função para o heartbeat (manter a conexão viva)
 function heartbeat() {
@@ -32,7 +34,6 @@ function heartbeat() {
 
 wss.on('connection', (ws) => {
   console.log('Cliente conectado.');
-  // Adiciona a propriedade isAlive e o listener de pong para o heartbeat
   ws.isAlive = true;
   ws.on('pong', heartbeat);
 
@@ -43,19 +44,23 @@ wss.on('connection', (ws) => {
       if (data.type === 'register_electron') {
         console.log('Aplicação Electron registrada.');
         electronClient = ws;
-        electronClient.send(JSON.stringify({ type: 'status', message: 'Conectado ao servidor.' }));
+        broadcastDesktopStatus('online'); // Notifica que o desktop está online
       } else if (data.type === 'register_remote') {
         console.log('Controle remoto (celular) conectado.');
         remoteClients.add(ws);
+        // Informa imediatamente ao novo controle se o desktop já está online
+        if (electronClient && electronClient.readyState === ws.OPEN) {
+            ws.send(JSON.stringify({ type: 'desktop_status', status: 'online' }));
+        }
       }
 
       if (data.type === 'command' && electronClient && electronClient.readyState === ws.OPEN) {
-        console.log(`Comando recebido do controle remoto: ${data.key}`);
+        console.log(`Comando recebido: ${data.key}`);
         electronClient.send(JSON.stringify({ type: 'execute_command', key: data.key }));
       }
 
       if (data.type === 'status_update' && remoteClients.size > 0) {
-         console.log(`Status do Electron recebido: ${data.payload.status}`);
+         console.log(`Status do Electron: ${data.payload.status}`);
          remoteClients.forEach(client => {
             if (client.readyState === ws.OPEN) {
                 client.send(JSON.stringify(data));
@@ -63,7 +68,7 @@ wss.on('connection', (ws) => {
          });
       }
     } catch (e) {
-      console.log('Mensagem de ping/pong ou inválida recebida.');
+      console.log('Mensagem inválida ou de ping/pong.');
     }
   });
 
@@ -72,6 +77,7 @@ wss.on('connection', (ws) => {
     if (ws === electronClient) {
       electronClient = null;
       console.log('Aplicação Electron desconectada.');
+      broadcastDesktopStatus('offline'); // Notifica que o desktop ficou offline
     }
     if(remoteClients.has(ws)){
        remoteClients.delete(ws);
@@ -79,30 +85,17 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('error', (error) => {
-    console.error('Erro de WebSocket:', error);
-  });
+  ws.on('error', (error) => console.error('Erro de WebSocket:', error));
 });
 
-// Intervalo para verificar conexões e enviar pings
 const interval = setInterval(function ping() {
   wss.clients.forEach(function each(ws) {
-    if (ws.isAlive === false) {
-        console.log('Cliente não respondeu ao ping, terminando conexão.');
-        return ws.terminate();
-    }
-
+    if (ws.isAlive === false) return ws.terminate();
     ws.isAlive = false;
     ws.ping();
   });
-}, 30000); // Envia um ping a cada 30 segundos
+}, 30000);
 
-// Limpa o intervalo quando o servidor fecha
-wss.on('close', function close() {
-  clearInterval(interval);
-});
+wss.on('close', () => clearInterval(interval));
 
-// Inicia o servidor
-server.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
-});
+server.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
