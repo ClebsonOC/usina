@@ -1,7 +1,7 @@
 {
   "name": "usina-servidor",
   "version": "1.0.0",
-  "description": "Servidor WebSocket para o controle remoto da usina.",
+  "description": "Servidor WebSocket e Web para o controle remoto da usina.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.19.2",
     "ws": "^8.17.1"
   }
 }
