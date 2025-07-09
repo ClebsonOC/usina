@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Controle de Pesagem</title>
+    <style>
+        /* CSS simples para uma boa experiência mobile */
+        body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; background: #2c3e50; color: white; }
+        .status-bar { width: 100%; text-align: center; padding: 10px; background: #34495e; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 400px; }
+        .btn { padding: 25px; font-size: 1.5em; font-weight: bold; border-radius: 10px; border: none; cursor: pointer; background: #3498db; color: white; }
+        .btn:active { transform: scale(0.95); }
+        #f10-btn { background: #e67e22; }
+        #f8-btn, #f9-btn { background: #e74c3c; }
+    </style>
+</head>
+<body>
+    <h1>Controle Remoto</h1>
+    <div id="status-bar" class="status-bar">Conectando...</div>
+    <div id="weight-status">Peso: 0 kg</div>
+
+    <div class="grid">
+        <button id="f1-btn" class="btn">F1</button>
+        <button id="f2-btn" class="btn">F2</button>
+        <button id="f3-btn" class="btn">F3</button>
+        <button id="f4-btn" class="btn">F4</button>
+        <button id="f5-btn" class="btn">F5</button>
+        <button id="f6-btn" class="btn">F6</button>
+        <button id="f8-btn" class="btn">F8</button>
+        <button id="f9-btn" class="btn">F9</button>
+        <button id="f10-btn" class="btn">F10</button>
+    </div>
+
+    <script>
+        const WEBSOCKET_URL = 'wss://meu-servidor-ws.onrender.com'; // <<< SUBSTITUA PELA SUA URL DO RENDER
+        let socket;
+
+        const statusBar = document.getElementById('status-bar');
+        const weightStatus = document.getElementById('weight-status');
+        const buttons = document.querySelectorAll('.btn');
+
+        function connect() {
+            socket = new WebSocket(WEBSOCKET_URL);
+
+            socket.onopen = () => {
+                statusBar.textContent = 'Conectado! ✅';
+                statusBar.style.background = '#2ecc71';
+                socket.send(JSON.stringify({ type: 'register_remote' }));
+            };
+
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if(data.type === 'status_update') {
+                   statusBar.textContent = `Status: ${data.payload.status}`;
+                   if(data.payload.currentWeight !== undefined){
+                      weightStatus.textContent = `Peso: ${data.payload.currentWeight} kg`;
+                   }
+                }
+            };
+
+            socket.onclose = () => {
+                statusBar.textContent = 'Desconectado! 🔌';
+                statusBar.style.background = '#c0392b';
+                setTimeout(connect, 3000); // Tenta reconectar
+            };
+
+            socket.onerror = () => {
+                statusBar.textContent = 'Erro de conexão!';
+                statusBar.style.background = '#e74c3c';
+            };
+        }
+
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    const key = button.id.replace('-btn', '').toUpperCase();
+                    console.log(`Enviando comando: ${key}`);
+                    socket.send(JSON.stringify({ type: 'command', key: key }));
+                } else {
+                    alert('Não conectado ao servidor.');
+                }
+            });
+        });
+
+        connect(); // Inicia a conexão
+    </script>
+</body>
+</html>

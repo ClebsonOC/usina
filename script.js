@@ -2,6 +2,7 @@
  * Script.js com lógica de pátio e cache para persistir os dados
  * de pesagens pendentes. As configurações de placas são carregadas dinamicamente.
  * Implementa um novo fluxo de pesagem com atalhos F1-F6 e a nova lógica para F8/F9.
+ * * Versão com integração WebSocket para controle remoto.
  */
 document.addEventListener("DOMContentLoaded", () => {
     const { ipcRenderer } = require('electron');
@@ -47,6 +48,73 @@ document.addEventListener("DOMContentLoaded", () => {
     let fKeysActive = false;
     let isSimulationRunning = false; // Flag geral para animação de F8 ou F9
 
+    // --- LÓGICA WEBSOCKET PARA CONTROLE REMOTO ---
+    let socket;
+    // IMPORTANTE: Substitua pela URL do seu servidor WebSocket hospedado no Render ou similar
+    const WEBSOCKET_URL = 'wss://seu-servidor-aqui.onrender.com'; 
+
+    /**
+     * Inicia a conexão com o servidor WebSocket e configura os listeners.
+     */
+    function connectWebSocket() {
+        // Usa wss:// para conexões seguras, que o Render fornece
+        socket = new WebSocket(WEBSOCKET_URL);
+
+        socket.onopen = () => {
+            console.log('Conectado ao servidor WebSocket.');
+            // Envia uma mensagem para se registrar como o cliente Electron
+            socket.send(JSON.stringify({ type: 'register_electron' }));
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                console.log('Mensagem recebida do servidor:', data);
+
+                // Verifica se é um comando para executar vindo do controle remoto
+                if (data.type === 'execute_command' && data.key) {
+                    console.log(`Executando comando remoto: ${data.key}`);
+                    // Simula o pressionamento de tecla para reutilizar a lógica existente
+                    const fakeEvent = {
+                        key: data.key,
+                        preventDefault: () => {} // Função vazia para evitar erros
+                    };
+                    handleKeyPress(fakeEvent);
+                }
+            } catch (error) {
+                console.error('Erro ao processar mensagem do WebSocket:', error);
+            }
+        };
+
+        socket.onclose = () => {
+            console.log('Desconectado do servidor WebSocket. Tentando reconectar em 5 segundos...');
+            // Tenta reconectar após um tempo para manter a conexão ativa
+            setTimeout(connectWebSocket, 5000);
+        };
+
+        socket.onerror = (error) => {
+            console.error('Erro no WebSocket:', error);
+            // O evento 'onclose' será chamado em seguida, tratando a reconexão.
+        };
+    }
+
+    /**
+     * Envia uma atualização de status para o(s) controle(s) remoto(s) conectado(s).
+     * @param {string} status - A mensagem de status principal.
+     * @param {object} details - Um objeto com detalhes adicionais (ex: peso, placa).
+     */
+    function sendStatusUpdate(status, details = {}) {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
+                type: 'status_update',
+                payload: {
+                    status: status,
+                    ...details
+                }
+            }));
+        }
+    }
+
     // --- FUNÇÕES AUXILIARES ---
     function getFormattedDateTime() {
         const now = new Date();
@@ -90,6 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
         currentWeight = 0;
         updateWeightDisplay();
         weighingStatus.textContent = "Aguardando Pesagem";
+        sendStatusUpdate("Aguardando Pesagem", { currentWeight: 0 }); // Notifica o controle remoto
+
         toggleFields(true);
         btnConfirmWeighing.disabled = false;
         
@@ -216,6 +286,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         populateCustomDropdown();
 
+        // Inicia a conexão WebSocket
+        connectWebSocket();
+
         setupDropdowns();
         updateClock();
         setInterval(updateClock, 1000);
@@ -271,12 +344,14 @@ document.addEventListener("DOMContentLoaded", () => {
             placaVeiculoInput.value = plate;
             if (!isWeighingProcessActive) {
                 weighingStatus.textContent = 'Aguardando Pesagem';
+                sendStatusUpdate("Aguardando Pesagem", { currentWeight: 0 });
             }
             loadPlateData(pendingWeighings[plate]);
         } else {
             placaVeiculoInput.value = '';
             if (!isWeighingProcessActive) {
                 weighingStatus.textContent = 'Aguardando Pesagem';
+                sendStatusUpdate("Aguardando Pesagem", { currentWeight: 0 });
                 resetUI(false);
             }
         }
@@ -302,6 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
             tempWeight += increment;
             currentWeight = Math.round(tempWeight / 10) * 10;
             updateWeightDisplay();
+            sendStatusUpdate("Pesando...", { currentWeight: currentWeight }); // Envia status durante a animação
 
             if (tempWeight >= target) {
                 currentWeight = target;
@@ -316,6 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function handleSimulationAnimation(maxValue) {
         isSimulationRunning = true;
         weighingStatus.textContent = "Aguardando posicionamento";
+        sendStatusUpdate("Simulação: Aguardando posicionamento");
         btnConfirmWeighing.disabled = true;
 
         const riseTime = 4000; // 4 segundos
@@ -366,6 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     updateWeightDisplay();
                     clearInterval(animationInterval);
                     weighingStatus.textContent = "Aguardando Pesagem";
+                    sendStatusUpdate("Simulação finalizada. Aguardando Pesagem");
                     btnConfirmWeighing.disabled = false;
                     isSimulationRunning = false; // Reseta a flag
                     return;
@@ -383,9 +461,11 @@ document.addEventListener("DOMContentLoaded", () => {
     function startFirstWeighing(placaCarreta) {
         showCustomModal(`Confirmar 1ª pesagem para ${placaCarreta}?`, () => {
             weighingStatus.textContent = "Pesando...";
+            sendStatusUpdate("Pesando...", { placa: placaCarreta });
             btnConfirmWeighing.disabled = true;
             animateWeight(PLATE_WEIGHTS[placaCarreta].initial, () => {
                 weighingStatus.textContent = "Pesagem Concluída!";
+                sendStatusUpdate("1ª Pesagem Concluída", { placa: placaCarreta, peso: currentWeight });
                 btnConfirmWeighing.disabled = false;
                 pendingWeighings[placaCarreta] = {
                     pesoInicial: currentWeight, dataInicio: getFormattedDateTime(),
@@ -412,6 +492,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     pesoFinal: currentWeight, 
                     dataFinal: getFormattedDateTime()
                 };
+                sendStatusUpdate("Ticket Gerado", { placa: placaCarreta });
                 ipcRenderer.send('show-ticket', finalData);
                 delete pendingWeighings[placaCarreta];
                 ipcRenderer.send('save-weighings', pendingWeighings);
@@ -430,6 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
         isWeighingProcessActive = true;
         activeWeighingPlate = plate; 
         weighingStatus.textContent = "Aguardando posicionamento";
+        sendStatusUpdate("Aguardando 2ª pesagem", { placa: plate });
         btnConfirmWeighing.disabled = true;
         currentWeight = 0;
         updateWeightDisplay();
@@ -453,6 +535,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 currentWeight = finalWeight; // Garante o peso final exato
                 updateWeightDisplay();
                 weighingStatus.textContent = "Balança estabilizada";
+                sendStatusUpdate("Balança estabilizada", { placa: plate, peso: currentWeight });
                 isBalanceStable = true;
                 btnConfirmWeighing.disabled = false;
                 isWeighingProcessActive = false;
