@@ -1,7 +1,8 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const { WebSocketServer } = require('ws');
+// CORREÇÃO 1: Importamos 'WebSocket' junto com 'WebSocketServer'
+const { WebSocketServer, WebSocket } = require('ws');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -21,7 +22,8 @@ let remoteClients = new Set();
 function broadcastDesktopStatus(status) {
     const message = JSON.stringify({ type: 'desktop_status', status: status });
     remoteClients.forEach(client => {
-        if (client.readyState === ws.OPEN) {
+        // CORREÇÃO 2: Usamos WebSocket.OPEN em vez de ws.OPEN
+        if (client.readyState === WebSocket.OPEN) {
             client.send(message);
         }
     });
@@ -49,12 +51,12 @@ wss.on('connection', (ws) => {
         console.log('Controle remoto (celular) conectado.');
         remoteClients.add(ws);
         // Informa imediatamente ao novo controle se o desktop já está online
-        if (electronClient && electronClient.readyState === ws.OPEN) {
+        if (electronClient && electronClient.readyState === WebSocket.OPEN) {
             ws.send(JSON.stringify({ type: 'desktop_status', status: 'online' }));
         }
       }
 
-      if (data.type === 'command' && electronClient && electronClient.readyState === ws.OPEN) {
+      if (data.type === 'command' && electronClient && electronClient.readyState === WebSocket.OPEN) {
         console.log(`Comando recebido: ${data.key}`);
         electronClient.send(JSON.stringify({ type: 'execute_command', key: data.key }));
       }
@@ -62,7 +64,7 @@ wss.on('connection', (ws) => {
       if (data.type === 'status_update' && remoteClients.size > 0) {
          console.log(`Status do Electron: ${data.payload.status}`);
          remoteClients.forEach(client => {
-            if (client.readyState === ws.OPEN) {
+            if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify(data));
             }
          });
