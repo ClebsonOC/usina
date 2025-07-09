@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // --- LÓGICA WEBSOCKET PARA CONTROLE REMOTO ---
     let socket;
     // IMPORTANTE: Substitua pela URL do seu servidor WebSocket hospedado no Render ou similar
-    const WEBSOCKET_URL = 'wss://seu-servidor-aqui.onrender.com'; 
+    const WEBSOCKET_URL = 'https://usina.onrender.com'; 
 
     /**
      * Inicia a conexão com o servidor WebSocket e configura os listeners.
