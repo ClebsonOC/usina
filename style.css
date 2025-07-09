@@ -1,0 +1,520 @@
+/* --- Reset e Configurações Globais --- */
+:root {
+    --color-bg-main: #f0f0f0;
+    --color-bg-window: #ECEFF1;
+    --color-border: #B0BEC5;
+    --color-border-light: #CFD8DC;
+    --color-border-input: #b9b9b9;
+    --color-primary-blue: #0D47A1;
+    --color-primary-blue-dark: #2A467A;
+    --color-title-blue: #1E3A8A;
+    --color-text-dark: #212121;
+    --color-text-medium: #455A64;
+    --color-text-light: #546E7A;
+    --color-logo-bg: #373737;
+    --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--color-bg-window);
+    color: var(--color-text-dark);
+    font-size: 13px;
+    overflow: hidden; /* Impede a rolagem do corpo principal */
+}
+
+/* --- Estrutura da Janela --- */
+.window {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--color-bg-window);
+    display: flex;
+    flex-direction: column;
+    border: none;
+    box-shadow: none;
+}
+
+.window-header {
+    background-color: #ffffff;
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--color-border-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+}
+
+.window-controls {
+    display: flex;
+}
+
+.window-controls .control {
+    width: 25px;
+    height: 20px;
+    margin-left: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Marlett', 'Segoe UI Symbol', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+}
+.window-controls .control:hover { background-color: #E5E5E5; }
+.window-controls .control.close:hover { background-color: #E81123; color: white; }
+
+/* --- Conteúdo Principal --- */
+.main-content {
+    flex-grow: 1;
+    padding: 0 15px 15px 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-title {
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 10px 0;
+    background-color: #1C3197;
+    width: 100%;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+/* --- Seção de Identificação --- */
+.identification-section {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    align-items: flex-start; /* Alinha os itens no topo */
+}
+
+/* --- Painel de Pesagem --- */
+.weighing-display {
+    background-color: #1C3197;
+    color: white;
+    width: 475px; 
+    flex-shrink: 0;
+    border: 1px solid #4A6FA5;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    padding: 0;
+    height: 180px;
+}
+
+.weighing-display .display-header {
+    font-size: 15px;
+    font-weight: 600;
+    border-bottom: 1px solid #4A6FA5;
+    padding: 8px;
+    margin: 0;
+}
+
+.weighing-display .weight-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: stretch;
+}
+
+.weighing-display .weight-value {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end; 
+    font-size: 70px;
+    font-weight: 700;
+    padding-right: 15px; 
+}
+
+.weighing-display .weight-unit {
+    width: 70px;
+    display: flex;
+    align-items: top;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 700;
+    border-left: 1px solid #4A6FA5;
+}
+
+.weighing-display .status {
+    font-size: 15px;
+    border-top: 1px solid #4A6FA5;
+    padding: 8px;
+    margin: 0;
+    font-weight:600;
+}
+
+/* --- Coluna do Formulário --- */
+.form-column {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.identification-form {
+    /* O formulário em si não precisa crescer, apenas seu contêiner */
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 10px;
+    align-items: center;
+}
+
+/* Estilos para o input normal e select */
+input[type="text"], select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid var(--color-border-input);
+    background-color: #fff;
+    height: 28px;
+}
+input[type="text"]:focus, select:focus { outline: 1px solid #0078D7; }
+
+
+/* Estilos para o ícone ao lado dos inputs (originalmente para todos, mas agora ajustado) */
+.input-with-icon { 
+    position: relative; 
+    display: flex; 
+    align-items: center;
+    width: 100%; /* Ocupa todo o espaço da coluna do grid */
+}
+
+.input-with-icon .icon {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    background-color: #E1E1E1;
+    border-left: 1px solid var(--color-border-input);
+    cursor: pointer;
+}
+.input-with-icon .icon:hover { background-color: #d1d1d1; }
+.input-with-icon .icon-blue { color: #003366; background-color: #CDE2F5; }
+.input-with-icon .icon-orange { color: #8C3D00; background-color: #FDE8D4; }
+
+/* --- NOVOS ESTILOS PARA O DROPDOWN CUSTOMIZADO DA PLACA DA CARRETA --- */
+.custom-dropdown-container {
+    position: relative;
+    width: 100%; /* Ocupa a largura total da célula do grid */
+    display: flex; /* Para alinhar o input e o ícone */
+    align-items: center;
+}
+
+.custom-dropdown-container input {
+    width: 100%; /* O input preenche o container */
+    padding-right: 30px; /* Espaço para o ícone de toggle */
+    /* Mantém os estilos de input normais */
+    padding: 6px 8px;
+    border: 1px solid var(--color-border-input);
+    background-color: #fff;
+    height: 28px;
+}
+
+.custom-dropdown-container .dropdown-toggle {
+    position: absolute;
+    right: 1px; /* Alinhado à direita do input */
+    top: 1px;
+    bottom: 1px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    background-color: #CDE2F5; /* Cor de fundo para o ícone do dropdown */
+    border-left: 1px solid var(--color-border-input);
+    cursor: pointer;
+    color: #003366; /* Cor do ícone */
+    z-index: 2; /* Garante que o ícone esteja acima do input */
+}
+
+.custom-dropdown-container .dropdown-toggle:hover {
+    background-color: #B2D0EB; /* Hover para o ícone do dropdown */
+}
+
+
+.custom-dropdown-list {
+    display: none; /* Escondido por padrão */
+    position: absolute;
+    top: 100%; /* Posiciona a lista abaixo do input */
+    left: 0;
+    right: 0;
+    background-color: white; /* Fundo branco */
+    border: 1px solid var(--color-border-input); /* Borda do dropdown */
+    border-top: none; /* Remove a borda superior para parecer uma continuação do input */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Removido: max-height: 150px; */
+    /* Removido: overflow-y: auto; */
+    z-index: 10; /* Garante que a lista esteja acima de outros elementos */
+}
+
+.dropdown-item {
+    padding: 8px 10px;
+    cursor: pointer;
+    color: black; /* Letra preta */
+    border-bottom: 1px solid #eee; /* Linha divisória entre itens */
+    font-weight: bold; /* NOVO: Texto em negrito */
+}
+
+.dropdown-item:last-child {
+    border-bottom: none; /* Remove a linha divisória do último item */
+}
+
+.dropdown-item:hover {
+    background-color: #e0e0e0; /* Fundo cinza claro ao passar o mouse */
+}
+
+.dropdown-item.no-options,
+.dropdown-item.no-results {
+    color: #777; /* Cor do texto para mensagens sem opções/resultados */
+    font-style: italic;
+    cursor: default;
+    background-color: transparent;
+    text-align: center;
+}
+/* --- FIM DOS ESTILOS DO DROPDOWN CUSTOMIZADO --- */
+
+
+/* --- Botões de Ação --- */
+.action-buttons {
+    display: flex;
+    margin-top: 10px; /* Adiciona espaço acima dos botões */
+    grid-column: 2; /* Garante que os botões fiquem na segunda coluna */
+}
+
+.action-buttons button {
+    padding: 8px 15px;
+    border: 1px solid #ADADAD;
+    border-radius: 2px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 8px;
+    background-color: var(--color-bg-window);
+    flex-grow: 1; /* Faz os botões dividirem o espaço */
+    text-align: center;
+}
+.action-buttons button:hover { border-color: #0078D7; }
+.btn-confirm { color: #107C10; }
+.btn-cancel { color: #D83B01; }
+.action-buttons i { margin-right: 5px; }
+
+/* --- Coluna do Logo --- */
+.logo-column {
+    display: flex;
+    width: 700px; 
+    flex-shrink: 0;
+}
+
+.logo {
+    background-color: var(--color-logo-bg);
+    color: #E0E0E0;
+    padding: 10px 40px;
+    font-size: 48px; 
+    font-weight: 700;
+    font-family: 'Arial Black', Gadget, sans-serif;
+    letter-spacing: 1px;
+    text-transform: lowercase;
+    height: 100px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; 
+}
+
+/* --- Seção de Abas (Tabs) --- */
+.tabs-section { border: 1px solid var(--color-border-light); background-color: #fff; margin-top: 15px; }
+
+.tabs {
+    display: flex;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.tab-link {
+    padding: 8px 12px;
+    border: none;
+    border-right: 1px solid var(--color-border-light);
+    background-color: transparent;
+    cursor: pointer;
+    color: var(--color-text-light);
+    font-size: 12px;
+}
+.tab-link.active {
+    background-color: #fff;
+    border-bottom: 1px solid #fff;
+    margin-bottom: -1px;
+    color: var(--color-text-dark);
+    font-weight: 600;
+}
+
+.tab-content { padding: 12px; }
+
+.data-input-grid {
+    display: grid;
+    grid-template-columns: auto 80px 1fr auto auto;
+    gap: 8px 5px;
+    align-items: center;
+}
+
+.input-group { display: flex; align-items: center; gap: 5px; grid-column: 2 / span 2; }
+.input-group select { flex-shrink: 0; width: 80px; }
+.input-group input { flex-grow: 1; }
+
+.btn-icon { padding: 4px 8px; border: 1px solid #ccc; background: #f0f0f0; cursor: pointer; height: 28px; }
+.btn-cadastra { background: transparent; border: 1px solid #ccc; padding: 4px 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; height: 28px; }
+.btn-cadastra i { color: #005A9E; }
+.saldo-text { font-style: italic; color: #555; grid-column: 5; justify-self: start; padding-left: 20px;}
+
+/* --- Seção da Grade de Dados --- */
+.data-grid-section { flex-grow: 1; margin-top: 15px; display: flex; gap: 8px; }
+
+.grid-actions { display: flex; flex-direction: column; gap: 8px; }
+.grid-actions button {
+    background-color: #f5f5f5;
+    border: 1px solid var(--color-border-input);
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 100px;
+    justify-content: start;
+}
+.grid-actions button i { margin: 0 5px; width: 14px; text-align: center; }
+.grid-actions button .fa-plus { color: green; }
+.grid-actions button .fa-minus { color: red; }
+
+.data-grid { flex-grow: 1; background-color: #BDBDBD; border: 1px solid #9E9E9E; }
+
+/* --- Rodapé --- */
+.window-footer {
+    border-top: 1px solid var(--color-border-light);
+    padding: 6px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f5f5f5;
+    font-size: 11px;
+}
+.footer-info { display: flex; gap: 20px; color: var(--color-text-medium); }
+.btn-exit {
+    background-color: #E5E5E5;
+    color: var(--color-text-dark);
+    border: 1px solid #ADADAD;
+    padding: 3px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.btn-exit i { color: #C42B1C; }
+.btn-exit:hover { border-color: #0078D7; }
+
+
+/* --- Estilos para o Modal/Popup --- */
+.modal-overlay {
+    display: none; /* Inicia oculto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Fundo mais escuro */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Garante que o modal esteja acima de outros elementos */
+}
+
+.modal-content {
+    background-color: var(--color-bg-window);
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    min-width: 300px;
+    border: 1px solid var(--color-border);
+}
+
+.modal-content p {
+    font-size: 16px;
+    margin-bottom: 20px;
+    color: var(--color-text-dark);
+}
+
+.modal-buttons button {
+    padding: 8px 20px;
+    margin: 0 10px;
+    border: 1px solid var(--color-border-input);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: #f0f0f0;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.modal-buttons button:hover {
+    background-color: #e0e0e0;
+    border-color: var(--color-primary-blue);
+}
+
+.modal-buttons #modal-yes-btn {
+    background-color: #107C10;
+    color: white;
+    border-color: #107C10;
+}
+
+.modal-buttons #modal-yes-btn:hover {
+    background-color: #0c6a0c;
+    border-color: #0c6a0c;
+}
+
+.modal-buttons #modal-no-btn {
+    background-color: #D83B01;
+    color: white;
+    border-color: #D83B01;
+}
+
+.modal-buttons #modal-no-btn:hover {
+    background-color: #b83001;
+    border-color: #b83001;
+}
+
+/* --- NOVO: Estilos para o Modal de Progresso de Fotos --- */
+.progress-modal-content {
+    width: 400px;
+}
+
+.progress-modal-content p {
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.progress-bar-outer {
+    width: 100%;
+    height: 25px;
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden; /* Garante que a barra interna fique contida */
+}
+
+.progress-bar-inner {
+    width: 0%; /* Inicia em 0 */
+    height: 100%;
+    background-color: #4CAF50; /* Verde */
+    transition: width 0.1s linear; /* Animação mais fluida */
+    border-radius: 3px;
+}

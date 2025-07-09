@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesagem</title>
+    
+    <!-- Link para a folha de estilos externa -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Adicionando Font Awesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="window">
+        <!-- CABEÇALHO DA JANELA -->
+        <header class="window-header">
+            <span>Pesagem</span>
+            <div class="window-controls">
+                <div class="control" title="Minimizar">0</div>
+                <div class="control" title="Maximizar">1</div>
+                <div class="control close" title="Fechar">r</div>
+            </div>
+        </header>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="main-content">
+            <h1 class="main-title">Identifique o veículo</h1>
+
+            <!-- SEÇÃO DE IDENTIFICAÇÃO E PESAGEM -->
+            <section class="identification-section">
+                <!-- Painel de Pesagem -->
+                <div class="weighing-display">
+                    <div class="display-header">[F2] - MCA_LYTO_02</div>
+                    <div class="weight-content">
+                        <div class="weight-value" id="weight-value">0</div>
+                        <div class="weight-unit">kg</div>
+                    </div>
+                    <div class="status" id="weighing-status">Aguardando Pesagem</div>
+                </div>
+
+                <!-- Coluna do Formulário e Ações -->
+                <div class="form-column">
+                    <div class="identification-form">
+                        <div class="form-grid">
+                            <label for="placa-carreta">Placa da carreta/vagão</label>
+                            <!-- MODIFICADO: Estrutura para o dropdown customizado -->
+                            <div class="custom-dropdown-container">
+                                <input type="text" id="placa-carreta" autocomplete="off"> 
+                                <i class="fa-solid fa-caret-down icon icon-blue dropdown-toggle" id="placa-carreta-dropdown-toggle"></i>
+                                <div class="custom-dropdown-list" id="placa-carreta-dropdown-list">
+                                    <!-- Opções serão preenchidas via JavaScript -->
+                                </div>
+                            </div>
+
+                            <label for="placa-veiculo">Placa do veículo</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="placa-veiculo">
+                                <i class="fa-solid fa-list-ul icon icon-blue"></i>
+                            </div>
+
+                            <label for="identificacao">Identificação</label>
+                            <div class="input-with-icon">
+                                <input type="text" id="identificacao">
+                                 <i class="fa-solid fa-id-card icon icon-orange"></i>
+                            </div>
+
+                            <label for="fluxo">Fluxo</label>
+                            <div class="input-with-icon">
+                               <select id="fluxo"></select>
+                               <i class="fa-solid fa-search icon"></i>
+                            </div>
+                            
+                            <!-- BOTÕES MOVIDOS PARA DENTRO DO GRID -->
+                            <span></span> <!-- Célula vazia para alinhar na coluna certa -->
+                            <div class="action-buttons">
+                                <button class="btn-confirm" id="btn-confirm-weighing"><i class="fa-solid fa-check"></i>Confirmar - [F12]</button>
+                                <button class="btn-cancel"><i class="fa-solid fa-times"></i>Cancelar - [F8]</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna do Logo -->
+                <div class="logo-column">
+                    <div class="logo">
+                        <span>guardian</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO DE ABAS -->
+            <section class="tabs-section">
+                <nav class="tabs">
+                    <button class="tab-link active">Cadastros - [F7]</button>
+                    <button class="tab-link">Resultados - [F7]</button>
+                    <button class="tab-link">Taxa - [F7]</button>
+                    <button class="tab-link">Automação - [F7]</button>
+                    <button class="tab-link">Observação - [F7]</button>
+                    <button class="tab-link">Documento - [F7]</button>
+                    <button class="tab-link">Fatores - [F7]</button>
+                </nav>
+                <div class="tab-content">
+                     <div class="data-input-grid">
+                        <!-- Linha 1 - MODIFICADA -->
+                        <label>Contrato</label>
+                        <div class="input-group">
+                            <select id="contrato-select"></select>
+                            <input type="text" placeholder="Descrição" id="contrato-desc" readonly>
+                            <button class="btn-icon"><i class="fa-solid fa-search"></i></button>
+                        </div>
+                        <button class="btn-cadastra"><i class="fa-regular fa-square-plus"></i> Cadastra</button>
+                        <span class="saldo-text">Saldo Atual (kg):</span>
+
+                        <!-- Linha 2 - MODIFICADA -->
+                        <label>Transportadora</label>
+                        <div class="input-group">
+                            <select id="transportadora-select"></select>
+                            <input type="text" placeholder="Descrição" id="transportadora-desc" readonly>
+                            <button class="btn-icon"><i class="fa-solid fa-search"></i></button>
+                        </div>
+                        <button class="btn-cadastra"><i class="fa-regular fa-square-plus"></i> Cadastra</button>
+                        <div></div>
+
+                        <!-- Linha 3 - MODIFICADA -->
+                        <label>Emissor</label>
+                        <div class="input-group">
+                            <select id="emissor-select"></select>
+                            <input type="text" placeholder="Descrição" id="emissor-desc" readonly>
+                            <button class="btn-icon"><i class="fa-solid fa-search"></i></button>
+                        </div>
+                        <button class="btn-cadastra"><i class="fa-regular fa-square-plus"></i> Cadastra</button>
+                        <div></div>
+
+                        <!-- Linha 4 - MODIFICADA -->
+                        <label>Itens</label>
+                        <div class="input-group">
+                            <select id="item-select"></select>
+                            <input type="text" placeholder="Nome" id="item-desc" readonly>
+                            <button class="btn-icon"><i class="fa-solid fa-search"></i></button>
+                        </div>
+                        <button class="btn-cadastra"><i class="fa-regular fa-square-plus"></i> Cadastra</button>
+                        <div></div>
+                     </div>
+                </div>
+            </section>
+
+            <!-- SEÇÃO DA GRADE DE DADOS -->
+            <section class="data-grid-section">
+                <div class="grid-actions">
+                    <button><i class="fa-solid fa-plus"></i> Adicionar</button>
+                    <button><i class="fa-solid fa-minus"></i> Remover</button>
+                </div>
+                <div class="data-grid">
+                    <!-- Conteúdo da tabela/grid aqui -->
+                </div>
+            </section>
+        </main>
+
+        <!-- RODAPÉ -->
+        <footer class="window-footer">
+            <div class="footer-info">
+                <span>Número:</span>
+                <span id="datetime">Data/Hora: 26/06/2025 14:55:00</span>
+                <span>Operador: administrador</span>
+                <span>Peso mínimo:0kg</span>
+                <!-- NOVO: Indicador de status dos atalhos F1-F6 -->
+                <span>Status: <span id="fkey-status"></span></span>
+            </div>
+            <button class="btn-exit"><i class="fa-solid fa-power-off"></i> Sair</button>
+        </footer>
+    </div>
+    
+    <!-- Estrutura do Modal/Popup de Confirmação -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+            <div class="modal-buttons">
+                <button id="modal-yes-btn">Sim</button>
+                <button id="modal-no-btn">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link para o script JavaScript externo -->
+    <script src="script.js"></script>
+</body>
+</html>
